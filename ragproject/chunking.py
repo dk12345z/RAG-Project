@@ -53,14 +53,21 @@ def chunk_text(
     index = 0
     while start < len(text):
         end = min(start + chunk_size, len(text))
-        piece = text[start:end].strip()
+        raw = text[start:end]
+        piece = raw.strip()
         if piece:
+            # Report the bounds of the stripped text within the original
+            # string, not the raw pre-strip slice, so metadata["start"] and
+            # metadata["end"] always describe exactly what's in `text`.
+            leading_ws = len(raw) - len(raw.lstrip())
+            piece_start = start + leading_ws
+            piece_end = piece_start + len(piece)
             chunks.append(
                 Chunk(
                     doc_id=doc_id,
                     chunk_id=f"{doc_id}::{index}",
                     text=piece,
-                    metadata={"start": start, "end": end},
+                    metadata={"start": piece_start, "end": piece_end},
                 )
             )
             index += 1

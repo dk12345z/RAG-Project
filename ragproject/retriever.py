@@ -41,10 +41,15 @@ class Retriever:
         ]
 
         passing = [c for c in candidates if c.score >= self.min_score]
+        # A chunk with a score of ~0 carries no real signal even if it
+        # technically clears a min_score of 0.0 (the default). Treat an
+        # all-noise result the same as an empty one so callers get an
+        # honest `insufficient_context` signal instead of a false "OK".
+        has_signal = any(c.score > 1e-9 for c in passing)
 
         return RetrievalResult(
             query=request.query,
             chunks=passing,
-            insufficient_context=len(passing) == 0,
+            insufficient_context=not has_signal,
             index_built_at=self.index.built_at,
         )
