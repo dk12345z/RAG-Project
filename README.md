@@ -48,4 +48,7 @@ python labs/break_it.py
 
 # Run the tests
 pytest -q
+
+# Generate an HTML completion report
+python -m ragproject.reporting
 ```
